@@ -57,3 +57,61 @@ function playRound(playerSelection, computerSelection) {
         };
     }
 }
+// game function that plays 5 rounds and keeps score
+function game() {
+  const TOTAL_ROUNDS = 5;
+  let playerScore = 0;
+  let computerScore = 0;
+
+  console.log("=== ROCK, PAPER, SCISSORS — 5 Rounds ===\n");
+
+  for (let i = 0; i < TOTAL_ROUNDS; i++) {
+    const round = i + 1;
+
+    const playerSelection = prompt("Your move! Type: Rock, Paper, or Scissors");
+    const computerSelection = computerPlay();
+
+    // Pass both selections directly into playRound
+    // playRound handles null, invalid input, ties, wins and losses
+    const roundResult = playRound(playerSelection, computerSelection);
+
+    // If the player cancelled, end the game immediately
+    if (roundResult.result === 'cancel') {
+      console.log("Game cancelled by player.");
+      alert("Game cancelled. Refresh to play again.");
+      return;
+    }
+
+    // If the player typed something invalid, do not advance the round
+    // Decrement i so the loop replays this round
+    if (roundResult.result === 'invalid') {
+      alert(roundResult.message);
+      console.log(`Round ${round} — invalid input: replaying round.`);
+      i--;
+      continue;
+    }
+
+    // Valid round — update scores
+    if (roundResult.result === 'win')  playerScore++;
+    if (roundResult.result === 'lose') computerScore++;
+
+    console.log(`Round ${round}: ${roundResult.message} | Score — You: ${playerScore} | Computer: ${computerScore}`);
+
+    alert(
+      `Round ${round} of ${TOTAL_ROUNDS}\n\n${roundResult.message}\n\nScore — You: ${playerScore} | Computer: ${computerScore}`
+    );
+  }
+
+  // Final result
+  let finalResult;
+  if (playerScore > computerScore)      finalResult = "You win the match!";
+  else if (computerScore > playerScore) finalResult = "Computer wins the match!";
+  else                                  finalResult = "It's a draw!";
+
+  console.log(`\n=== FINAL RESULT ===`);
+  console.log(`${finalResult} | You: ${playerScore} | Computer: ${computerScore}`);
+
+  alert(`${finalResult}\n\nFinal Score — You: ${playerScore} | Computer: ${computerScore}`);
+}
+
+game();
