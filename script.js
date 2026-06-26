@@ -6,11 +6,15 @@ function computerPlay() {
 
 function playRound(playerSelection, computerSelection) {
     
-    if (playerSelection === null || playerSelection === undefined) {
+    if (playerSelection === null) {
         return {
             message: "Game cancelled.",
             result: 'cancel'
         };
+    }
+
+    if (typeof playerSelection !== 'string') {
+        return { message: "Invalid input.", result: 'invalid' };
     }
 
     const player = playerSelection.trim().toLowerCase();
@@ -53,5 +57,3 @@ function playRound(playerSelection, computerSelection) {
         };
     }
 }
-
-playRound();
