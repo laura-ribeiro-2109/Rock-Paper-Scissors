@@ -1,12 +1,12 @@
 function computerPlay() {
     const choices = ['Rock', 'Paper', 'Scissors'];
-    const randomIndex = Math.floor(Math.random() * 3);
+    const randomIndex = Math.floor(Math.random() * choices.length);
     return choices[randomIndex];
 }
 
 function playRound(playerSelection, computerSelection) {
     
-    if (playerSelection === null) {
+    if (playerSelection === null || playerSelection === undefined) {
         return {
             message: "Game cancelled.",
             result: 'cancel'
@@ -14,7 +14,7 @@ function playRound(playerSelection, computerSelection) {
     }
 
     const player = playerSelection.trim().toLowerCase();
-    const computer = computerSelection.toLowerCase();
+    const computer = computerSelection.trim().toLowerCase();
     
     const validChoices = ['rock', 'paper', 'scissors'];
     if (!validChoices.includes(player)) {
@@ -53,3 +53,5 @@ function playRound(playerSelection, computerSelection) {
         };
     }
 }
+
+playRound();
