@@ -1,3 +1,5 @@
+https://laura-ribeiro-2109.github.io/Rock-Paper-Scissors/
+
 # Rock, Paper, Scissors
 
 A browser-based Rock, Paper, Scissors game played entirely through native `prompt()` and `alert()` dialogs.
