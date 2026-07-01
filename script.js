@@ -4,114 +4,99 @@ function computerPlay() {
     return choices[randomIndex];
 }
 
+function validateInput(playerSelection) {
+    if (playerSelection === null) return { result: 'cancel' };
+    if (typeof playerSelection !== 'string') return { result: 'invalid', message: "Invalid input." };
+    const normalized = playerSelection.trim().toLowerCase();
+    if (!['rock', 'paper', 'scissors'].includes(normalized)) {
+        return { result: 'invalid', message: `"${playerSelection}" is not a valid value! Choose Rock, Paper, or Scissors.` };
+    }
+    return { result: 'valid', normalized };
+}
+
 function playRound(playerSelection, computerSelection) {
-    
-    if (playerSelection === null) {
-        return {
-            message: "Game cancelled.",
-            result: 'cancel'
-        };
-    }
-
-    if (typeof playerSelection !== 'string') {
-        return { message: "Invalid input.", result: 'invalid' };
-    }
-
     const player = playerSelection.trim().toLowerCase();
     const computer = computerSelection.trim().toLowerCase();
-    
-    const validChoices = ['rock', 'paper', 'scissors'];
-    if (!validChoices.includes(player)) {
-        return {
-            message: `"${playerSelection}" is not a valid value! Choose Rock, Paper, or Scissors.`,
-            result: 'invalid'
-        };
-    }
-    
+    const playerFormatted = player.charAt(0).toUpperCase() + player.slice(1);
+
     if (player === computer) {
-        return {
-            message: `TIE! Both threw ${computerSelection}!`,
-            result: 'tie'
-        };
+        return { result: 'tie', player: playerFormatted, computer: computerSelection };
     }
-    
-    const winsAgainst = {
-        rock: 'scissors',
-        paper: 'rock',
-        scissors: 'paper'
-    };
-    
+
+    const winsAgainst = { rock: 'scissors', paper: 'rock', scissors: 'paper' };
     const playerWins = winsAgainst[player] === computer;
 
-    const playerFormatted = player.charAt(0).toUpperCase() + player.slice(1);
-    
-    if (playerWins) {
-        return {
-            message: `VICTORY! Your ${playerFormatted} beats the Computer's ${computerSelection}!`,
-            result: 'win'
-        };
-    } else {
-        return {
-            message: `DEFEAT! The Computer's ${computerSelection} beats your ${playerFormatted}!`,
-            result: 'lose'
-        };
-    }
+    return playerWins
+        ? { result: 'win',  player: playerFormatted, computer: computerSelection }
+        : { result: 'lose', player: playerFormatted, computer: computerSelection };
 }
-// game function that plays 5 rounds and keeps score
+
+function getPlayerInput() {
+    return prompt("Your move! Type: Rock, Paper, or Scissors");
+}
+
+function formatRoundMessage({ result, player, computer }) {
+    if (result === 'win')  return `VICTORY! Your ${player} beats the Computer's ${computer}!`;
+    if (result === 'lose') return `DEFEAT! The Computer's ${computer} beats your ${player}!`;
+    return `TIE! Both threw ${computer}!`;
+}
+
+function showRoundResult(round, total, message, playerScore, computerScore) {
+    console.log(`Round ${round}: ${message} | Score — You: ${playerScore} | Computer: ${computerScore}`);
+    alert(`Round ${round} of ${total}\n\n${message}\n\nScore — You: ${playerScore} | Computer: ${computerScore}`);
+}
+
+function showFinalResult(finalResult, playerScore, computerScore) {
+    console.log(`\n=== FINAL RESULT ===`);
+    console.log(`${finalResult} | You: ${playerScore} | Computer: ${computerScore}`);
+    alert(`${finalResult}\n\nFinal Score — You: ${playerScore} | Computer: ${computerScore}`);
+}
+
 function game() {
-  const TOTAL_ROUNDS = 5;
-  let playerScore = 0;
-  let computerScore = 0;
+    const TOTAL_ROUNDS = 5;
+    let playerScore = 0;
+    let computerScore = 0;
 
-  console.log("=== ROCK, PAPER, SCISSORS — 5 Rounds ===\n");
+    console.log("=== ROCK, PAPER, SCISSORS — 5 Rounds ===\n");
 
-  for (let i = 0; i < TOTAL_ROUNDS; i++) {
-    const round = i + 1;
+    for (let i = 0; i < TOTAL_ROUNDS; i++) {
+        const round = i + 1;
 
-    const playerSelection = prompt("Your move! Type: Rock, Paper, or Scissors");
-    const computerSelection = computerPlay();
+        let playerSelection;
+        while (true) {
+            const validation = validateInput(getPlayerInput());
 
-    // Pass both selections directly into playRound
-    // playRound handles null, invalid input, ties, wins and losses
-    const roundResult = playRound(playerSelection, computerSelection);
+            if (validation.result === 'cancel') {
+                console.log("Game cancelled by player.");
+                alert("Game cancelled. Refresh to play again.");
+                return;
+            }
 
-    // If the player cancelled, end the game immediately
-    if (roundResult.result === 'cancel') {
-      console.log("Game cancelled by player.");
-      alert("Game cancelled. Refresh to play again.");
-      return;
+            if (validation.result === 'invalid') {
+                alert(validation.message);
+                console.log(`Round ${round} — invalid input: replaying round.`);
+                continue;
+            }
+
+            playerSelection = validation.normalized;
+            break;
+        }
+
+        const computerSelection = computerPlay();
+        const roundResult = playRound(playerSelection, computerSelection);
+
+        if (roundResult.result === 'win')  playerScore++;
+        if (roundResult.result === 'lose') computerScore++;
+
+        showRoundResult(round, TOTAL_ROUNDS, formatRoundMessage(roundResult), playerScore, computerScore);
     }
 
-    // If the player typed something invalid, do not advance the round
-    // Decrement i so the loop replays this round
-    if (roundResult.result === 'invalid') {
-      alert(roundResult.message);
-      console.log(`Round ${round} — invalid input: replaying round.`);
-      i--;
-      continue;
-    }
+    let finalResult;
+    if (playerScore > computerScore)      finalResult = "You win the match!";
+    else if (computerScore > playerScore) finalResult = "Computer wins the match!";
+    else                                  finalResult = "It's a draw!";
 
-    // Valid round — update scores
-    if (roundResult.result === 'win')  playerScore++;
-    if (roundResult.result === 'lose') computerScore++;
-
-    console.log(`Round ${round}: ${roundResult.message} | Score — You: ${playerScore} | Computer: ${computerScore}`);
-
-    alert(
-      `Round ${round} of ${TOTAL_ROUNDS}\n\n${roundResult.message}\n\nScore — You: ${playerScore} | Computer: ${computerScore}`
-    );
-  }
-
-  // Final result
-  let finalResult;
-  if (playerScore > computerScore)      finalResult = "You win the match!";
-  else if (computerScore > playerScore) finalResult = "Computer wins the match!";
-  else                                  finalResult = "It's a draw!";
-
-  console.log(`\n=== FINAL RESULT ===`);
-  console.log(`${finalResult} | You: ${playerScore} | Computer: ${computerScore}`);
-
-  alert(`${finalResult}\n\nFinal Score — You: ${playerScore} | Computer: ${computerScore}`);
+    showFinalResult(finalResult, playerScore, computerScore);
 }
 
 game();
